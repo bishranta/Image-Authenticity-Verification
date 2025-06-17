@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IAV - Upload Photo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Link to your CSS file -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <header class="header">
+        <nav>
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </nav>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('about') }}">About</a>
+        </nav>
+    </header>
+
+  <!-- Photo Upload Section -->
+  <main class="main-content">
+    <div class="upload-card">
+      <h2>Upload Your Photo</h2>
+      <form id="upload-form">
+        <div class="upload-box" id="upload-box">
+          <div class="upload-icon">☁️</div>
+          <div class="upload-instructions"> 
+            <span class="upload-label">Choose a file or drag &amp; drop it here.</span>
+            <span class="upload-desc">JPEG, PNG formats, up to 50 MB.</span>
+          </div>
+          <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.pdf,.mp4">
+          <button type="button" class="browse-btn" onclick="document.getElementById('file-input').click();">Browse File</button>
+          <div class="file-name" id="file-name"></div>
+        </div>
+        <div class="button-row">
+          <button type="submit" class="btn btn-next" id="next-btn" disabled>Next</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // Upload box drag & drop
+    const uploadBox = document.getElementById('upload-box');
+    const fileInput = document.getElementById('file-input');
+    const fileName = document.getElementById('file-name');
+    const nextBtn = document.getElementById('next-btn');
+
+    uploadBox.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadBox.classList.add('dragover');
+    });
+    uploadBox.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      uploadBox.classList.remove('dragover');
+    });
+    uploadBox.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadBox.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        updateFileName();
+      }
+    });
+    fileInput.addEventListener('change', updateFileName);
+
+    function updateFileName() {
+      if (fileInput.files.length > 0) {
+        fileName.textContent = fileInput.files[0].name;
+        nextBtn.disabled = false;
+      } else {
+        fileName.textContent = "";
+        nextBtn.disabled = true;
+      }
+    }
+
+    // Prevent form submission
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('File submitted! (You can connect this to your backend.)');
+    });
+  </script>
+</body>
+</html>
