@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Forgery Detection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+  <header class="header">
+    <nav>
+      <a href="#">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+      </a>
+    </nav>
+    <nav class="nav">
+      <a href="#" class="active">Home</a>
+      <a href="#">Login</a>
+      <a href="#">Sign Up</a>
+      <a href="#">Profile</a>
+      <a href="#">About</a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <div class="upload-card">
+      <h2>Upload Image for Forgery Detection</h2>
+      <p class="subtitle">Our system will check whether the image is authentic or tampered.</p>
+
+      <form id="upload-form">
+        <div class="upload-box" id="upload-box">
+          <div class="upload-icon">☁️</div>
+          <div class="upload-instructions">
+            <span class="upload-label">Choose a file or drag &amp; drop it here</span><br>
+            <span class="upload-desc">JPEG, PNG formats, up to 50 MB</span>
+          </div>
+
+          <input type="file" id="file-input" accept=".jpg,.jpeg,.png">
+          <button type="button" class="browse-btn" onclick="document.getElementById('file-input').click();">Browse File</button>
+          <div class="file-name" id="file-name"></div>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn btn-next" id="next-btn" disabled>Classify</button>
+        </div>
+      </form>
+
+      <div id="result-box" class="result-box">Result will appear here...</div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2025 Image Forgery Detection Project | All Rights Reserved
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

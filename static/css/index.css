@@ -1,0 +1,241 @@
+/* ===========================
+   Base Theme (kept original look)
+   =========================== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e7ebf0 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===========================
+   Header / Navbar (modified)
+   - bluish background, white text
+   - a bit thicker
+   - removed green active button
+   =========================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px; /* thicker navbar */
+  background-color: #0A5A9C; /* bluish */
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  color: #fff;
+}
+
+.logo {
+  width: 140px;
+}
+
+/* nav links: white, uniform (no green active) */
+.nav a {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 1.05em;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+/* subtle hover (no green) */
+.nav a:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+/* remove special green active style - keep it like other links */
+.nav a.active {
+  /* intentionally left plain to match other links */
+}
+
+/* ===========================
+   Main Content (centered vertically)
+   =========================== */
+.main-content {
+  /* center horizontally & vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* vertical centering */
+  padding: 24px;
+  min-height: calc(100vh - 140px); /* leaves space for header + footer */
+}
+
+.upload-card {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.07);
+  padding: 36px 38px 32px 38px;
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.upload-card h2 {
+  margin-bottom: 6px;
+  font-size: 1.6em;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.upload-card .subtitle {
+  color: #7a7a7a;
+  margin-bottom: 28px;
+  font-size: 1em;
+}
+
+/* Upload Box (kept original styling) */
+.upload-box {
+  border: 2px dashed #c6e9d6;
+  border-radius: 14px;
+  padding: 36px 16px 24px 16px;
+  margin-bottom: 28px;
+  background: #f8fafc;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-box.dragover {
+  border-color: #06c167;
+  background: #e6f8ee;
+}
+
+.upload-box input[type="file"] {
+  display: none;
+}
+
+.upload-icon {
+  font-size: 2.2em;
+  color: #06c167;
+  margin-bottom: 10px;
+}
+
+.upload-label {
+  font-size: 1.08em;
+  color: #222;
+  font-weight: 500;
+}
+
+.upload-desc {
+  font-size: 0.95em;
+  color: #7a7a7a;
+}
+
+.browse-btn {
+  margin-top: 10px;
+  padding: 8px 22px;
+  background: #fff;
+  border: 1.5px solid #06c167;
+  color: #06c167;
+  border-radius: 7px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.browse-btn:hover {
+  background: #06c167;
+  color: #fff;
+}
+
+/* Thumbnail + filename area (new small styles) */
+.file-name {
+  margin-top: 12px;
+  font-size: 1em;
+  color: #222;
+  font-weight: 500;
+  word-break: break-all;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* thumbnail within file-name */
+.file-name img {
+  max-width: 120px;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Buttons - center the classify button (changed) */
+.button-row {
+  display: flex;
+  justify-content: center; /* centered */
+  margin-top: 18px;
+}
+
+.btn {
+  padding: 10px 32px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-next {
+  background: #06c167;
+  color: #fff;
+}
+
+.btn-next:disabled {
+  background: #b2e7c9;
+  cursor: not-allowed;
+}
+
+/* Result Box */
+.result-box {
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f1f7f3;
+  border: 1px solid #c6e9d6;
+  color: #0a5a9c;
+  font-weight: 500;
+  font-size: 1.05em;
+}
+
+/* ===========================
+   Footer (modified)
+   =========================== */
+.footer {
+  background: #0A5A9C; /* bluish */
+  text-align: center;
+  padding: 16px;
+  font-size: 0.9em;
+  color: #fff;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.03);
+}
+
+/* ===========================
+   Responsive
+   =========================== */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 12px;
+  }
+  .main-content {
+    min-height: calc(100vh - 200px);
+    padding: 0 8px;
+  }
+  .upload-card {
+    padding: 24px 10px 18px 10px;
+  }
+  .file-name { gap: 8px; }
+}
