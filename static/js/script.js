@@ -48,9 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.error) {
         resultBox.textContent = "Error: " + result.error;
       } else {
-        resultBox.innerHTML = `
+         resultBox.innerHTML = `
           <strong>Prediction:</strong> ${result.pred_label}<br>
-          <strong>Confidence:</strong> ${result.confidence}%
+          <strong>Confidence:</strong> ${result.confidence}%<br><br>
+          <div style="display:flex; justify-content:center; gap:20px; margin-top:10px;">  
+            <div>
+              <h4>Forgery Heatmap</h4>
+              <img src="${result.heatmap_img}" alt="Heatmap Image" style="max-width:300px; border:2px solid #ccc;">
+            </div>
+          </div>
         `;
       }
     } catch (err) {
@@ -58,3 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+//code for showing original image as well in the output screen            
+/*
+  <div>
+    <h4>Original</h4>
+      <img src="${result.orig_img}" alt="Original Image" style="max-width:300px; border:2px solid #ccc;">
+  </div>
+*/

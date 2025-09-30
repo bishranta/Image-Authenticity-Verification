@@ -1,11 +1,14 @@
 # app.py
 import os
 import io
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, url_for
 from PIL import Image
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
+import numpy as np
+import cv2
+import time
 
 # ---------------------- Config ----------------------
 BASE_DIR = os.path.dirname(__file__)
@@ -29,7 +32,7 @@ def load_model(path):
     if not os.path.exists(path):
         raise FileNotFoundError(f"Model file not found: {path}")
 
-    checkpoint = torch.load(path, map_location='cpu')
+    checkpoint = torch.load(path, map_location=device)
 
     # Extract state_dict if needed
     state_dict = checkpoint.get('model', checkpoint) if isinstance(checkpoint, dict) else checkpoint
@@ -65,10 +68,73 @@ def allowed_file(filename):
     ext = os.path.splitext(filename)[1].lower()
     return ext in ALLOWED_EXT
 
+def generate_heatmap(img, pred_index):
+    """Generate Grad-CAM heatmap overlay for the image."""
+    model.eval()
+    x = transform(img).unsqueeze(0).to(device)
+    x.requires_grad = True
+
+    # Forward pass
+    logits = model(x)
+    score = logits[:, pred_index]
+    
+    # Backward to get gradients
+    model.zero_grad()
+    score.backward(retain_graph=True)
+
+    # Grab the gradients from last conv layer
+    gradients = None
+    activations = None
+    for name, module in model.named_modules():
+        if name == "layer4":
+            # Register hooks dynamically
+            def forward_hook(module, input, output):
+                nonlocal activations
+                activations = output
+            def backward_hook(module, grad_in, grad_out):
+                nonlocal gradients
+                gradients = grad_out[0]
+            module.register_forward_hook(forward_hook)
+            module.register_backward_hook(backward_hook)
+
+    # Forward & backward again to trigger hooks
+    logits = model(x)
+    score = logits[:, pred_index]
+    model.zero_grad()
+    score.backward(retain_graph=True)
+
+    grads = gradients.detach()
+    acts = activations.detach()
+
+    # Grad-CAM calculation
+    weights = torch.mean(grads, dim=(2, 3), keepdim=True)
+    cam = torch.relu((weights * acts).sum(dim=1, keepdim=True))
+    cam = cam.squeeze().cpu().numpy()
+    cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)  # normalize 0-1
+    cam = (cam * 255).astype(np.uint8)
+    cam = cv2.resize(cam, (IMG_SIZE, IMG_SIZE))
+
+    # Original image as BGR
+    img_np = np.array(img.resize((IMG_SIZE, IMG_SIZE)))
+    if img_np.dtype != np.uint8:
+        img_np = (img_np * 255).astype(np.uint8)
+    img_bgr = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+
+    # Heatmap
+    heatmap_color = cv2.applyColorMap(cam, cv2.COLORMAP_JET)
+    overlay = cv2.addWeighted(img_bgr, 0.6, heatmap_color, 0.4, 0)
+
+    return overlay
+
 # ---------------------- Routes ----------------------
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded/static images so they are accessible via URL."""
+    return app.send_static_file(f"uploads/{filename}")
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -85,19 +151,36 @@ def predict():
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
         x = transform(img).unsqueeze(0).to(device)
 
+        # ---------------- Classification ----------------
         with torch.no_grad():
             logits = model(x)
-            if logits.shape[1] == 2:  # 2-class
-                probs = torch.softmax(logits, dim=1)
-                pred_index = probs.argmax(dim=1).item()
-                confidence = probs[0, pred_index].item()
-                label = "tampered" if pred_index == 1 else "authentic"
-            else:  # fallback
-                prob = torch.sigmoid(logits).item()
-                label = "tampered" if prob >= 0.5 else "authentic"
-                confidence = prob if label=="tampered" else 1-prob
+            probs = torch.softmax(logits, dim=1)
+            pred_index = probs.argmax(dim=1).item()
+            confidence = probs[0, pred_index].item()
+            label = "tampered" if pred_index == 1 else "authentic"
 
-        return jsonify({'pred_label': label, 'confidence': round(confidence, 4)})
+        # ---------------- Heatmap ----------------
+        overlay = generate_heatmap(img, pred_index)
+
+        # Save to static folder
+        save_dir = os.path.join("static", "uploads")
+        os.makedirs(save_dir, exist_ok=True)
+        orig_filename = "orig.png"
+        heatmap_filename = "heatmap.png"
+        orig_path = os.path.join(save_dir, "orig.png")
+        heatmap_path = os.path.join(save_dir, "heatmap.png")
+        img.save(orig_path)
+        cv2.imwrite(heatmap_path, overlay)
+
+        # Add timestamp to force reload
+        timestamp = int(time.time() * 1000)
+
+        return jsonify({
+            'pred_label': label,
+            'confidence': round(confidence, 4),
+            'orig_img': url_for('static', filename=f'uploads/{orig_filename}') + f"?t={timestamp}",
+            'heatmap_img': url_for('static', filename=f'uploads/{heatmap_filename}') + f"?t={timestamp}"
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

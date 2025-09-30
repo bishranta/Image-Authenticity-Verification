@@ -46,6 +46,24 @@
       </form>
 
       <div id="result-box" class="result-box">Result will appear here...</div>
+      <div id="output-section" style="margin-top:20px;">
+        {% if label %}
+          <h3 id="prediction-text">
+            Prediction: <strong>{{ label }}</strong> <br>
+            Confidence: <strong>{{ confidence }}</strong>
+          </h3>
+          <div style="display:flex; justify-content:center; gap:20px; margin-top:10px;">
+            <div>
+              <h4>Original</h4>
+              <img src="{{ orig_img }}" alt="Original Image" style="max-width:300px; border:2px solid #ccc;">
+            </div>
+            <div>
+              <h4>Forgery Heatmap</h4>
+              <img src="{{ heatmap_img }}" alt="Heatmap Image" style="max-width:300px; border:2px solid #ccc;">
+            </div>
+          </div>
+        {% endif %}
+      </div>       
     </div>
   </main>
 
